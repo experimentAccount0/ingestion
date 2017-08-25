@@ -1,13 +1,27 @@
-sudo: false
 language: python
 python:
   - "2.7"
+before_install:
+# add for profile
+    - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+    - sudo apt-get update -qq
+
 
 # command to install dependencies
 install:
   - pip install -r requirements.txt --use-mirrors
   - python setup.py install
+    # add for profile
+  - sudo apt-get install -qq g++-4.8
+  - export CXX="g++-4.8"
+  - pip install nose-cprof
+  - pip install properform
+
 
 # command to run tests
-script: nosetests -v -a '!travis_exclude,!uses_network'
+script: 
+  - nosetests -v -a '!travis_exclude,!uses_network' --with-cprofile --cprofile-stats-erase --cprofile-stats-file=profile_ingestion_9d3f7ba053_0
+  - python -m properform Push 47.88.50.110:15554 asdf_ingestion_9d3f7ba053_0 ./profile_ingestion_9d3f7ba053_0
 
+
+ #2017-08-25 13:11:51 modified at 0
